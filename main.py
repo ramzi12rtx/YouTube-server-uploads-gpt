@@ -1,3 +1,12 @@
+import sys
+print("🔍 Python version:", sys.version)
+print("📦 Modules:", sys.path)
+
+try:
+    import moviepy
+    print("✅ moviepy imported successfully!")
+except Exception as e:
+    print("❌ moviepy import failed:", e)
 from src.generate_script import generate_script
 from src.text_to_speech import text_to_speech
 from src.create_video import create_video
