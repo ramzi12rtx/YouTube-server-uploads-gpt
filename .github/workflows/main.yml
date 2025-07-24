@@ -2,8 +2,8 @@ name: Generate & Upload YouTube Video
 
 on:
   schedule:
-    - cron: '0 9 * * *'  # كل يوم 9 صباحًا UTC
-  workflow_dispatch:      # تشغيل يدوي
+    - cron: '0 9 * * *'  # كل يوم الساعة 9 صباحًا UTC
+  workflow_dispatch:      # تشغيل يدوي من GitHub
 
 jobs:
   build:
@@ -23,15 +23,14 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ffmpeg
 
-      - name: Clean install moviepy + dependencies manually
+      - name: Install Python dependencies
         run: |
-          pip uninstall -y moviepy || true
+          pip uninstall -y moviepy oauth2client || true
           rm -rf ~/.cache/pip
-          pip install moviepy==1.0.3 --no-cache-dir
-          pip install Pillow==9.5.0
-          pip install openai==0.28
+          pip install moviepy==1.0.3 Pillow==9.5.0 openai==0.28
           pip install imageio imageio-ffmpeg decorator proglog
-          pip install elevenlabs requests google-api-python-client oauth2client
+          pip install elevenlabs requests
+          pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client
 
       - name: Show installed packages (debug)
         run: pip list
@@ -44,3 +43,4 @@ jobs:
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
           YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
           YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+          YOUTUBE_ACCESS_TOKEN: ${{ secrets.YOUTUBE_ACCESS_TOKEN }}
