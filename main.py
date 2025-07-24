@@ -11,7 +11,7 @@ from src.generate_script import generate_script
 from src.text_to_speech import text_to_speech
 from src.create_video import create_video
 from src.upload_youtube import upload_video
-from src.image_downloader import download_random_image
+from src.download_image import download_image
 
 import datetime
 import platform
