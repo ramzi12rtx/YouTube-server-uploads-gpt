@@ -2,8 +2,8 @@ name: Generate & Upload YouTube Video
 
 on:
   schedule:
-    - cron: '0 9 * * *'
-  workflow_dispatch:
+    - cron: '0 9 * * *'  # كل يوم 9 صباحًا UTC
+  workflow_dispatch:      # تشغيل يدوي
 
 jobs:
   build:
@@ -25,11 +25,13 @@ jobs:
 
       - name: Clean install moviepy + dependencies manually
         run: |
-          pip uninstall -y moviepy
+          pip uninstall -y moviepy || true
           rm -rf ~/.cache/pip
           pip install moviepy==1.0.3 --no-cache-dir
+          pip install Pillow==9.5.0
+          pip install openai==0.28
           pip install imageio imageio-ffmpeg decorator proglog
-          pip install openai elevenlabs requests google-api-python-client oauth2client
+          pip install elevenlabs requests google-api-python-client oauth2client
 
       - name: Show installed packages (debug)
         run: pip list
