@@ -1,15 +1,9 @@
-# src/image_downloader.py
-
-import os
 import requests
+import os
 
-PEXELS_API_KEY = os.getenv("PEXELS_API_KEY")
+PEXELS_API_KEY = os.getenv("PEXELS_API_KEY")  # تأكد أنك ضايفه في GitHub Secrets
 
-def download_random_image(query="nature", output_path="input.jpg"):
-    if not PEXELS_API_KEY:
-        print("❌ Pexels access key missing.")
-        return False
-
+def download_image(query):
     headers = {
         "Authorization": PEXELS_API_KEY
     }
@@ -20,20 +14,16 @@ def download_random_image(query="nature", output_path="input.jpg"):
     }
 
     response = requests.get("https://api.pexels.com/v1/search", headers=headers, params=params)
+
     if response.status_code != 200:
-        print(f"❌ Failed to fetch image: {response.status_code} - {response.text}")
-        return False
+        raise Exception(f"❌ Failed to fetch image from Pexels: {response.status_code} - {response.text}")
 
     data = response.json()
-    if not data.get("photos"):
-        print("❌ No photos found.")
-        return False
+    image_url = data['photos'][0]['src']['large']
 
-    image_url = data["photos"][0]["src"]["original"]
+    image_path = "output/image.jpg"
     image_data = requests.get(image_url).content
-
-    with open(output_path, "wb") as f:
+    with open(image_path, "wb") as f:
         f.write(image_data)
 
-    print(f"✅ Saved image to {output_path}")
-    return True
+    return image_path
