@@ -1,29 +1,42 @@
-import requests
 import os
+import requests
 
-PEXELS_API_KEY = os.getenv("PEXELS_API_KEY")  # تأكد أنك ضايفه في GitHub Secrets
+def download_image(query="nature", save_path="output/image.jpg"):
+    # جلب مفتاح API من Secrets
+    PEXELS_API_KEY = os.getenv("PEXELS_API_KEY")
+    
+    if not PEXELS_API_KEY:
+        raise Exception("❌ PEXELS_API_KEY غير موجود. تأكد من إضافته إلى GitHub Secrets.")
 
-def download_image(query):
     headers = {
         "Authorization": PEXELS_API_KEY
     }
 
     params = {
         "query": query,
+        "orientation": "landscape",
+        "size": "large",
         "per_page": 1
     }
 
-    response = requests.get("https://api.pexels.com/v1/search", headers=headers, params=params)
+    url = "https://api.pexels.com/v1/search"
+    response = requests.get(url, headers=headers, params=params)
 
     if response.status_code != 200:
         raise Exception(f"❌ Failed to fetch image from Pexels: {response.status_code} - {response.text}")
 
     data = response.json()
-    image_url = data['photos'][0]['src']['large']
+    photos = data.get("photos")
+    if not photos:
+        raise Exception("❌ لم يتم العثور على صور للبحث.")
 
-    image_path = "output/image.jpg"
-    image_data = requests.get(image_url).content
-    with open(image_path, "wb") as f:
-        f.write(image_data)
+    image_url = photos[0]["src"]["large"]
 
-    return image_path
+    # تحميل الصورة
+    img_data = requests.get(image_url).content
+    os.makedirs(os.path.dirname(save_path), exist_ok=True)
+    with open(save_path, "wb") as handler:
+        handler.write(img_data)
+
+    print(f"✅ Image downloaded and saved to {save_path}")
+    return save_path
