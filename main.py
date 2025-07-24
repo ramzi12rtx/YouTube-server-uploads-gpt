@@ -32,7 +32,7 @@ def main():
     print("✅ النص:", script)
 
     print("🖼️ 1.1 جلب صورة تلقائيًا...")
-    download_random_image(script)
+    download_image(script)
 
     print("🔊 2. تحويل النص إلى صوت...")
     audio_path = text_to_speech(script)
