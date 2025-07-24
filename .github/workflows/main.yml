@@ -2,7 +2,7 @@ name: Generate & Upload YouTube Video
 
 on:
   schedule:
-    - cron: '0 9 * * *'
+    - cron: '0 9 * * *'  # يوميًا الساعة 9 صباحًا UTC
   workflow_dispatch:
 
 jobs:
@@ -10,27 +10,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: 3.11
+          python-version: '3.11'
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install moviepy openai requests oauth2client google-api-python-client elevenlabs
 
       - name: Install FFmpeg
         run: |
-          sudo apt update
-          sudo apt install -y ffmpeg
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
 
-      - name: Run script
+      - name: Run main script
         run: python main.py
-
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
