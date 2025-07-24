@@ -1,6 +1,8 @@
 openai
 elevenlabs
-moviepy
+moviepy==1.0.3
+imageio==2.9.0
+imageio-ffmpeg==0.4.5
+requests
 google-api-python-client
 oauth2client
-requests
