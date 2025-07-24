@@ -1,30 +1,39 @@
-import requests
-import os
-from datetime import datetime
+# src/image_downloader.py
 
-def download_image(query):
-    access_key = os.getenv("UNSPLASH_ACCESS_KEY")
-    if not access_key:
-        print("❌ Unsplash access key missing.")
-        return "assets/fallback.jpg"
-    
-    try:
-        response = requests.get(
-            "https://api.unsplash.com/photos/random",
-            params={"query": query, "orientation": "landscape", "client_id": access_key},
-            timeout=10
-        )
-        response.raise_for_status()
-        data = response.json()
-        image_url = data['urls']['regular']
-        
-        filename = f"output/image_{datetime.now().strftime('%Y%m%d%H%M%S')}.jpg"
-        img_data = requests.get(image_url).content
-        with open(filename, 'wb') as handler:
-            handler.write(img_data)
-        
-        print(f"✅ Downloaded image to {filename}")
-        return filename
-    except Exception as e:
-        print(f"❌ Failed to download image: {e}")
-        return "assets/fallback.jpg"
+import os
+import requests
+
+PEXELS_API_KEY = os.getenv("PEXELS_API_KEY")
+
+def download_random_image(query="nature", output_path="input.jpg"):
+    if not PEXELS_API_KEY:
+        print("❌ Pexels access key missing.")
+        return False
+
+    headers = {
+        "Authorization": PEXELS_API_KEY
+    }
+
+    params = {
+        "query": query,
+        "per_page": 1
+    }
+
+    response = requests.get("https://api.pexels.com/v1/search", headers=headers, params=params)
+    if response.status_code != 200:
+        print(f"❌ Failed to fetch image: {response.status_code} - {response.text}")
+        return False
+
+    data = response.json()
+    if not data.get("photos"):
+        print("❌ No photos found.")
+        return False
+
+    image_url = data["photos"][0]["src"]["original"]
+    image_data = requests.get(image_url).content
+
+    with open(output_path, "wb") as f:
+        f.write(image_data)
+
+    print(f"✅ Saved image to {output_path}")
+    return True
