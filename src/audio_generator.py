@@ -4,7 +4,7 @@ from datetime import datetime
 
 def text_to_speech(text):
     api_key = os.getenv("ELEVENLABS_API_KEY")
-    voice_id = "EXAVITQu4vr4xnSDxMaL"  # صوت افتراضي من ElevenLabs
+    voice_id = "EXAVITQu4vr4xnSDxMaL"  # صوت إنجليزي من ElevenLabs
 
     url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
 
@@ -16,7 +16,7 @@ def text_to_speech(text):
     data = {
         "text": text,
         "model_id": "eleven_monolingual_v1",
-        "voice_settings": {"stability": 0.5, "similarity_boost": 0.75}
+        "voice_settings": {"stability": 0.4, "similarity_boost": 0.75}
     }
 
     output_path = f"output/audio_{datetime.now().strftime('%Y%m%d%H%M%S')}.mp3"
