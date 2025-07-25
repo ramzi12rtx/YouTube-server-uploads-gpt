@@ -2,7 +2,7 @@ name: Generate & Upload YouTube Video
 
 on:
   schedule:
-    - cron: '0 9 * * *'  # كل يوم الساعة 9 صباحًا UTC
+    - cron: '0 17 * * *'  # كل يوم الساعة 17:00 UTC = 18:00 بتوقيت الجزائر (UTC+1)
   workflow_dispatch:      # تشغيل يدوي من GitHub
 
 jobs:
