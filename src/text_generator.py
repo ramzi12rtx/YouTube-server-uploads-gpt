@@ -1,20 +1,34 @@
-import openai
 import os
+import anthropic
+
+client = anthropic.Anthropic(
+    api_key=os.getenv("CLAUDE_API_KEY")
+)
 
 def generate_script():
-    openai.api_key = os.getenv("OPENAI_API_KEY")
-    
     try:
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",  # ✅ استخدم gpt-3.5
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant that writes short, engaging YouTube video scripts."},
-                {"role": "user", "content": "Write a short script for a 30-second video about a fun fact."}
-            ]
+        print("🧠 استخدام Claude لتوليد نص جذاب...")
+        prompt = (
+            "📌 أكتب نص فيديو قصير ومشوق لمنصة يوتيوب.\n"
+            "✅ النص يجب أن يكون:\n"
+            "- جذاب من أول ثانية.\n"
+            "- يحتوي على معلومة غريبة أو مثيرة (مثل: حقائق علمية، غرائب، أشياء لا يعرفها الناس).\n"
+            "- لا يتجاوز 3 جمل.\n"
+            "- بصيغة حماسية وتشويقية.\n"
+            "- باللغة الإنجليزية فقط.\n"
+            "🎯 مثال: Did you know that octopuses have three hearts and blue blood?\n"
         )
-        script = response['choices'][0]['message']['content'].strip()
-        return script
+
+        response = client.messages.create(
+            model="claude-3-haiku-20240307",
+            max_tokens=300,
+            messages=[{"role": "user", "content": prompt}]
+        )
+
+        text = response.content[0].text.strip()
+        print("✅ النص:", text)
+        return text
 
     except Exception as e:
-        print("❌ Error generating script:", e)
-        return "Welcome to our channel! Stay tuned for amazing content coming soon 😉"
+        print("❌ Claude API Error:", e)
+        return "Did you know the human brain uses more energy than any other organ? 😉"
