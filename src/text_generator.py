@@ -1,25 +1,20 @@
-import os
 import openai
+import os
 
 def generate_script():
     openai.api_key = os.getenv("OPENAI_API_KEY")
-
-    prompt = (
-        "اكتب لي سكريبت قصير وجذاب لفيديو يوتيوب مدته 30 ثانية،"
-        " يكون باللغة الإنجليزية، ويتحدث عن معلومة عامة مذهلة،"
-        " بأسلوب مشوّق ويدعو المشاهد للبقاء حتى النهاية."
-    )
-
+    
     try:
         response = openai.ChatCompletion.create(
-            model="gpt-4",  # أو "gpt-3.5-turbo" لو لم يكن لديك وصول إلى gpt-4
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.8,
-            max_tokens=200
+            model="gpt-3.5-turbo",  # ✅ استخدم gpt-3.5
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant that writes short, engaging YouTube video scripts."},
+                {"role": "user", "content": "Write a short script for a 30-second video about a fun fact."}
+            ]
         )
-        script = response.choices[0].message['content'].strip()
-        print(f"✅ النص: {script}")
+        script = response['choices'][0]['message']['content'].strip()
         return script
+
     except Exception as e:
-        print(f"❌ Error generating script: {e}")
+        print("❌ Error generating script:", e)
         return "Welcome to our channel! Stay tuned for amazing content coming soon 😉"
