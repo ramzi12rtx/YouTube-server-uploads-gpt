@@ -16,3 +16,4 @@ torch
 webrtcvad-wheels
 pydub
 openai==1.44.1
+anthropic
