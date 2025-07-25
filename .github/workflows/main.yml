@@ -31,7 +31,7 @@ jobs:
           pip install imageio imageio-ffmpeg decorator proglog
           pip install elevenlabs requests
           pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client
-
+          pip install anthropic  # ✅ لتشغيل Claude AI
       - name: Show installed packages (debug)
         run: pip list
 
