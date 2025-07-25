@@ -1,34 +1,29 @@
+import openai
 import os
-import anthropic
-
-client = anthropic.Anthropic(
-    api_key=os.getenv("CLAUDE_API_KEY")
-)
+import random
 
 def generate_script():
-    try:
-        print("🧠 استخدام Claude لتوليد نص جذاب...")
-        prompt = (
-            "📌 أكتب نص فيديو قصير ومشوق لمنصة يوتيوب.\n"
-            "✅ النص يجب أن يكون:\n"
-            "- جذاب من أول ثانية.\n"
-            "- يحتوي على معلومة غريبة أو مثيرة (مثل: حقائق علمية، غرائب، أشياء لا يعرفها الناس).\n"
-            "- لا يتجاوز 3 جمل.\n"
-            "- بصيغة حماسية وتشويقية.\n"
-            "- باللغة الإنجليزية فقط.\n"
-            "🎯 مثال: Did you know that octopuses have three hearts and blue blood?\n"
-        )
+    openai.api_key = os.getenv("OPENAI_API_KEY")
 
-        response = client.messages.create(
-            model="claude-3-haiku-20240307",
-            max_tokens=300,
-            messages=[{"role": "user", "content": prompt}]
-        )
+    prompts = [
+        "اكتب نصًا لفيديو قصير ملهم عن النجاح الشخصي.",
+        "اكتب سكربت لفيديو عن أسرار التطوير الذاتي.",
+        "اكتب نصًا ترفيهيًا عن أغرب 5 حقائق في العالم.",
+        "اكتب نصًا عن عادة صباحية للناجحين.",
+        "اكتب نص فيديو جذاب عن كيف تبدأ مشروعك الخاص."
+    ]
 
-        text = response.content[0].text.strip()
-        print("✅ النص:", text)
-        return text
+    prompt = random.choice(prompts)
 
-    except Exception as e:
-        print("❌ Claude API Error:", e)
-        return "Did you know the human brain uses more energy than any other organ? 😉"
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",  # مجاني غالبًا في معظم البيئات
+        messages=[
+            {"role": "system", "content": "أنت كاتب محتوى محترف على يوتيوب."},
+            {"role": "user", "content": prompt}
+        ],
+        max_tokens=300,
+        temperature=0.8
+    )
+
+    script = response.choices[0].message.content.strip()
+    return script
