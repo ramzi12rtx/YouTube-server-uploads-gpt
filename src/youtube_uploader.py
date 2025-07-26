@@ -1,31 +1,30 @@
-from google.oauth2.credentials import Credentials
-from googleapiclient.discovery import build
-from google.auth.transport.requests import Request
-from googleapiclient.http import MediaFileUpload
 import os
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaFileUpload
 
-def upload_video(video_path, title):
-    creds = Credentials(
-        token=os.getenv("YOUTUBE_ACCESS_TOKEN"),
-        refresh_token=os.getenv("YOUTUBE_REFRESH_TOKEN"),
-        token_uri="https://oauth2.googleapis.com/token",
-        client_id=os.getenv("YOUTUBE_CLIENT_ID"),
-        client_secret=os.getenv("YOUTUBE_CLIENT_SECRET"),
-        scopes=["https://www.googleapis.com/auth/youtube.upload"]
-    )
+def upload_video(video_path, script):
+    youtube_api_key = os.getenv("YOUTUBE_API_KEY")
 
-    if creds.expired and creds.refresh_token:
-        creds.refresh(Request())
+    if not youtube_api_key:
+        raise Exception("❌ YOUTUBE_API_KEY not found in environment variables.")
 
-    youtube = build("youtube", "v3", credentials=creds)
+    # 🔤 استخدم أول سطر من السكربت كعنوان - أو عنوان افتراضي
+    script = script.strip()
+    title = script.split("\n")[0] if script else "Video from AI"
+    title = title[:100]  # لا يتجاوز 100 حرف
+
+    description = script if script else "Generated video using AI."
+
+    youtube = build("youtube", "v3", developerKey=youtube_api_key)
 
     request = youtube.videos().insert(
         part="snippet,status",
         body={
             "snippet": {
                 "title": title,
-                "description": "تم الإنشاء تلقائيًا بواسطة GPT 🤖",
-                "tags": ["AI", "YouTube", "Automation"]
+                "description": description,
+                "tags": ["AI", "Shorts", "Motivation", "daily videos"],
+                "categoryId": "22",  # People & Blogs
             },
             "status": {
                 "privacyStatus": "public"
@@ -35,4 +34,4 @@ def upload_video(video_path, title):
     )
 
     response = request.execute()
-    print("✅ تم رفع الفيديو: https://youtu.be/" + response.get("id"))
+    print(f"✅ تم رفع الفيديو: https://youtu.be/{response['id']}")
