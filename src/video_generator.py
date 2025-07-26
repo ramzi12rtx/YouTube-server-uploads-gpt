@@ -1,30 +1,13 @@
-from moviepy.editor import ImageClip, AudioFileClip, CompositeVideoClip
+from moviepy.editor import *
 import os
-from datetime import datetime
 
-def create_video(image_path, audio_path, output_path=None):
-    if not output_path:
-        os.makedirs("output", exist_ok=True)
-        output_path = f"output/video_{datetime.now().strftime('%Y%m%d%H%M%S')}.mp4"
+def create_video(image_path, audio_path, output_path):
+    # تحميل الصورة والصوت
+    image = ImageClip(image_path).set_duration(AudioFileClip(audio_path).duration)
+    image = image.resize(height=1920)  # فيديو طولي 1080x1920
+    image = image.set_position("center").set_audio(AudioFileClip(audio_path))
 
-    try:
-        # تحميل الصوت
-        audio_clip = AudioFileClip(audio_path)
-
-        # تحديد مدة الفيديو إلى 30 ثانية كحد أقصى
-        duration = min(audio_clip.duration, 30)
-
-        # إنشاء صورة كفيديو عمودي (طولي)
-        image_clip = ImageClip(image_path).set_duration(duration).resize(height=1920, width=1080)
-
-        # دمج الصوت مع الصورة
-        video = CompositeVideoClip([image_clip.set_audio(audio_clip.set_duration(duration))])
-
-        # إخراج الفيديو
-        video.write_videofile(output_path, fps=24)
-        print(f"✅ Video saved at: {output_path}")
-        return output_path
-
-    except Exception as e:
-        print(f"❌ Error generating video: {e}")
-        return None
+    # إنشاء الفيديو النهائي
+    final_video = CompositeVideoClip([image])
+    os.makedirs("output", exist_ok=True)
+    final_video.write_videofile(output_path, fps=24)
