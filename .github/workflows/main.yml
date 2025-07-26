@@ -32,6 +32,7 @@ jobs:
           pip install elevenlabs requests
           pip install google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client
           pip install pydub
+          pip install openai
           
       - name: Show installed packages (debug)
         run: pip list
