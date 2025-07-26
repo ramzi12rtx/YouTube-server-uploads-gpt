@@ -1,55 +1,45 @@
-from moviepy.editor import ImageClip, AudioFileClip, TextClip, CompositeVideoClip, vfx
+from moviepy.editor import ImageClip, AudioFileClip, CompositeVideoClip
 from PIL import Image
-from datetime import timedelta
 import os
 
-def create_video(image_path, audio_path, output_path):
-    # تحميل الصوت
-    audio = AudioFileClip(audio_path)
-    duration = audio.duration
-
-    # إعداد الحجم النهائي
-    final_w, final_h = 1080, 1920
-
-    # تعديل الصورة للخلفية
+def resize_and_crop(image_path, target_size=(1080, 1920)):
     img = Image.open(image_path).convert("RGB")
     img_ratio = img.width / img.height
-    target_ratio = final_w / final_h
+    target_ratio = target_size[0] / target_size[1]
 
     if img_ratio > target_ratio:
-        new_h = final_h
-        new_w = int(img_ratio * new_h)
+        # قص العرض
+        new_height = target_size[1]
+        new_width = int(new_height * img_ratio)
     else:
-        new_w = final_w
-        new_h = int(new_w / img_ratio)
+        # قص الطول
+        new_width = target_size[0]
+        new_height = int(new_width / img_ratio)
 
-    img = img.resize((new_w, new_h), Image.LANCZOS)
-    left = (new_w - final_w) // 2
-    top = (new_h - final_h) // 2
-    img = img.crop((left, top, left + final_w, top + final_h))
-    resized_path = "assets/resized_bg.jpg"
-    os.makedirs("assets", exist_ok=True)
-    img.save(resized_path)
+    img = img.resize((new_width, new_height), Image.LANCZOS)
 
-    # إنشاء الخلفية مع تأثير Blur خفيف
-    background = ImageClip(resized_path).set_duration(duration)
-    blurred_bg = background.fx(vfx.blur, 10).set_opacity(0.6)
+    # اقتصاص مركزي
+    left = (new_width - target_size[0]) / 2
+    top = (new_height - target_size[1]) / 2
+    right = left + target_size[0]
+    bottom = top + target_size[1]
 
-    # النص المتحرك (العنوان من script)
-    if hasattr(audio, 'fps'): pass
-    text_lines = []
-    # script input passed earlier
-    # هنا يمكنك تمرير العنوان من main.py
-    title = os.getenv("SCRIPT_TITLE", "")
-    txt_clip = TextClip(title, fontsize=90, color='white', font='Arial-Bold',
-                        method='caption', size=(final_w*0.8, None), align='center')
-    txt_clip = txt_clip.set_position(("center", final_h*0.4)).set_duration(duration)
-    txt_clip = txt_clip.crossfadein(1).crossfadeout(1)
+    img = img.crop((left, top, right, bottom))
 
-    # دمج الخلفيات
-    final = CompositeVideoClip([blurred_bg, background.set_opacity(1), txt_clip])
-    final = final.set_audio(audio).set_duration(duration)
+    output_path = "assets/resized_background.jpg"
+    img.save(output_path)
+    return output_path
 
-    # إخراج الفيديو
-    os.makedirs("output", exist_ok=True)
-    final.write_videofile(output_path, fps=24, codec='libx264', audio_codec='aac')
+def create_video(image_path, audio_path, output_path):
+    # ضبط حجم الفيديو الطولي
+    final_size = (1080, 1920)
+
+    resized_image_path = resize_and_crop(image_path, final_size)
+
+    audio_clip = AudioFileClip(audio_path)
+    duration = audio_clip.duration
+
+    background = ImageClip(resized_image_path).set_duration(duration)
+
+    video = CompositeVideoClip([background.set_audio(audio_clip)], size=final_size)
+    video.write_videofile(output_path, fps=24, codec="libx264", audio_codec="aac")
